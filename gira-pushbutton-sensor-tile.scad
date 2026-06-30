@@ -38,7 +38,7 @@ arch_corner_radius = 0.5; // mm
 
 // Interior locating protrusions rising from the recessed tray floor.
 protrusion_x_inset = 5; // mm
-protrusion_radius = 0.8; // mm
+protrusion_radius = 0.5; // mm
 protrusion_height = 1; // mm
 
 // Rectangle sitting on y = 0 with only its two top corners rounded:
