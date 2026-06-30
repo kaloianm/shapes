@@ -11,14 +11,6 @@ This repository contains parametric OpenSCAD shapes for 3D printing.
 
 No lint or typecheck steps. Models are rendered in OpenSCAD.
 
-The OpenSCAD binary path is configured in the **OpenSCAD VS Code extension**. Read it from VS Code settings:
-
-```bash
-OPENSCAD=$(jq -r '.["openscad.launchPath"] // empty' \
-  ~/Library/Application\ Support/Code/User/settings.json)
-OPENSCAD="${OPENSCAD:-$(which openscad)}"
-```
-
 ## Generating README Preview Images
 
 When adding or updating a model, regenerate its preview image for the README table of contents.
@@ -26,10 +18,7 @@ When adding or updating a model, regenerate its preview image for the README tab
 **Step 1 — Render the PNG from OpenSCAD:**
 
 ```bash
-# Resolve OpenSCAD binary from VS Code extension config
-OPENSCAD=$(jq -r '.["openscad.launchPath"] // empty' \
-  ~/Library/Application\ Support/Code/User/settings.json)
-OPENSCAD="${OPENSCAD:-$(which openscad)}"
+OPENSCAD="$(which openscad)"
 
 "$OPENSCAD" --autocenter --viewall --render \
   --imgsize=200,200 --projection=perspective \
