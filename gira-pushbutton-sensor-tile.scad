@@ -1,10 +1,12 @@
 // Replacement/customizable cover tile for a Gira Pushbutton Sensor.
 //
-// This prints the small insert/cover shown in the reference photo: a shallow tray with raised end
-// lips and two retaining arch clips. Intended to fit the Gira Pushbutton Sensor 3 Komfort family,
-// including the 3-gang KNX variant documented by Gira as item no. 5133 00.
+// A shallow tray with a raised lip and a retaining arch clip on each short end, plus two small pins
+// inside the tray. Intended to fit the Gira Pushbutton Sensor 3 Komfort family, including the 3-gang
+// KNX variant documented by Gira as item no. 5133 00.
 //
 // Product reference: https://katalog.gira.de/en-INT/datenblatt/4010337086857
+//
+// Print with the flat face on the bed (clips pointing up); no supports are needed.
 
 // Smooth edge rounding
 $fn = 50;
@@ -12,109 +14,115 @@ $fn = 50;
 // Small epsilon to avoid SCAD Z-fighting (explained at https://en.wikipedia.org/wiki/Z-fighting)
 eps = 0.01;
 
-// Outer box dimensions
-outer_length = 54.5; // mm
-outer_width = 18.5; // mm
-outer_height = 2; // mm
+// Outer envelope of the tile. The flat face at z = 0 is the visible side.
+length = 54.5; // mm
+width = 18.5; // mm
+thickness = 2; // mm
 
-// Inner box dimensions. The recessed area leaves a 1 mm perimeter wall and a 1 mm tray floor.
-inner_length = 52.5; // mm
-inner_width = 16.5; // mm
-inner_depth = 1; // mm
+// Shell. The tray cavity is whatever is left inside the perimeter wall above the floor.
+wall_thickness = 1; // mm
+floor_thickness = 1.5; // mm (the original tile has a 1 mm floor; 1.5 mm is noticeably stiffer)
 
-wall_thickness = (outer_length - inner_length) / 2;
+// Cosmetics of the visible face: rounded plan-view corners and a 45-degree chamfer around the face
+// edge. The chamfer also hides the elephant's foot of the first layer. Set either to 0 for a plain box.
+corner_radius = 1; // mm
+face_chamfer = 0.5; // mm
 
-side_piece_depth = wall_thickness;
-side_piece_height = 0.5; // mm
+// Raised lip across each short end, on top of the rim, that the clip stands on.
+lip_height = 0.5; // mm
 
-// Retaining arches on the short sides. The lower leg corners stay square;
-// only the two outside top corners are rounded to soften the visible edge.
-arch_height = 5; // mm
-arch_width = 15; // mm
-arch_top_height = 2; // mm
-arch_side_width = 2.5; // mm
-arch_leg_gap = 10; // mm
-arch_corner_radius = 0.5; // mm
+// Retaining arch clip on each short end: two legs and a top bar, as thick as the end wall.
+// Only the two outer top corners are rounded.
+clip_width = 15; // mm
+clip_height = 5; // mm
+clip_bar_height = 2; // mm
+clip_gap = 10; // mm, between the legs
+clip_corner_radius = 0.5; // mm
 
-// Interior locating protrusions rising from the recessed tray floor.
-protrusion_x_inset = 5; // mm
-protrusion_radius = 0.5; // mm
-protrusion_height = 1; // mm
+// Small pins rising from the tray floor to the rim, centered across the width and inset from each end.
+pin_inset = 5; // mm
+pin_radius = 0.5; // mm
 
-// Rectangle sitting on y = 0 with only its two top corners rounded:
-// the hull of the bottom edge and the two top corner circles.
-module top_rounded_rect(width, height, r) {
+cavity_length = length - 2 * wall_thickness;
+cavity_width = width - 2 * wall_thickness;
+cavity_depth = thickness - floor_thickness;
+
+// Plan-view outline of the tile, optionally inset from the outer edge (corners stay concentric).
+module footprint(inset = 0) {
+  offset(r = corner_radius - inset)
+    square([length - 2 * corner_radius, width - 2 * corner_radius], center = true);
+}
+
+// Solid plate with the face edge chamfered: the hull of the full footprint (from the chamfer height
+// up) and the footprint inset by the chamfer at the face.
+module plate() {
   hull() {
-    translate([-width / 2, 0])
-      square([width, eps]);
+    linear_extrude(eps)
+      footprint(face_chamfer);
 
-    for (x_side = [-1, 1])
-      translate([x_side * ((width / 2) - r), height - r])
-        circle(r = r);
+    translate([0, 0, face_chamfer])
+      linear_extrude(thickness - face_chamfer)
+        footprint();
   }
 }
 
-module arch_profile() {
+// Plate with the tray cavity cut out of the top.
+module tray() {
   difference() {
-    top_rounded_rect(arch_width, arch_height, arch_corner_radius);
+    plate();
 
-    // Open space between the two arch legs.
-    translate([-arch_leg_gap / 2, -eps])
-      square([arch_leg_gap, arch_height - arch_top_height + eps]);
+    translate([0, 0, floor_thickness])
+      linear_extrude(thickness)
+        square([cavity_length, cavity_width], center = true);
   }
 }
 
-// Shallow base tray: a 2 mm outer plate with a 1 mm-deep recessed center.
-module base_tray() {
+// Arch profile of one clip, drawn with y pointing up from where it stands on the lip.
+module clip_profile() {
   difference() {
-    translate([0, 0, outer_height / 2])
-      cube([outer_length, outer_width, outer_height], center = true);
+    // Rectangle with its two top corners rounded.
+    hull() {
+      translate([-clip_width / 2, 0])
+        square([clip_width, clip_height - clip_corner_radius]);
 
-    translate([0, 0, outer_height - (inner_depth / 2) + eps])
-      cube([inner_length, inner_width, inner_depth + (2 * eps)], center = true);
+      for (side = [-1, 1])
+        translate([side * (clip_width / 2 - clip_corner_radius), clip_height - clip_corner_radius])
+          circle(clip_corner_radius);
+    }
+
+    // Opening between the legs.
+    translate([-clip_gap / 2, -1])
+      square([clip_gap, clip_height - clip_bar_height + 1]);
   }
 }
 
-// X center of the end lip (and arch) on the given short side.
-function end_lip_x(x_side) = x_side * ((outer_length / 2) - (side_piece_depth / 2));
+// Lip and clip on one short end (x_side = -1 or 1), extruded through the end wall. The intersection
+// trims the lip to the rounded corners of the footprint.
+module end_clip(x_side) {
+  intersection() {
+    linear_extrude(thickness + lip_height + clip_height)
+      footprint();
 
-// Raised lip on each short end of the tray. The arches sit on these lips.
-module end_piece(x_side) {
-  translate([
-    end_lip_x(x_side),
-    0,
-    outer_height + (side_piece_height / 2)
-  ])
-    cube([side_piece_depth, outer_width, side_piece_height], center = true);
+    translate([x_side * (length - wall_thickness) / 2, 0, thickness])
+      rotate([90, 0, 90])
+        linear_extrude(wall_thickness, center = true) {
+          translate([-width / 2, 0])
+            square([width, lip_height]);
+
+          translate([0, lip_height])
+            clip_profile();
+        }
+  }
 }
 
-// One continuous end arch, extruded through the 1 mm end lip depth.
-// The profile is drawn in the xy plane, then stood upright and turned to face
-// along x so it spans the lip thickness.
-module arch(x_side) {
-  arch_z_base = outer_height + side_piece_height;
-  arch_depth = side_piece_depth;
-
-  translate([end_lip_x(x_side), 0, arch_z_base])
-    rotate([90, 0, 90])
-      linear_extrude(height = arch_depth, center = true)
-        arch_profile();
+module pin(x_side) {
+  translate([x_side * (length / 2 - pin_inset), 0, floor_thickness])
+    cylinder(h = cavity_depth, r = pin_radius);
 }
 
-// Small upward posts centered in the tray width and inset from each short side.
-module protrusion(x_side) {
-  translate([
-    x_side * ((outer_length / 2) - protrusion_x_inset),
-    0,
-    outer_height - inner_depth
-  ])
-    cylinder(h = protrusion_height, r = protrusion_radius);
-}
-
-base_tray();
+tray();
 
 for (x_side = [-1, 1]) {
-  end_piece(x_side);
-  arch(x_side);
-  protrusion(x_side);
+  end_clip(x_side);
+  pin(x_side);
 }
