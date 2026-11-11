@@ -9,7 +9,8 @@ OpenSCAD shapes for 3D printing. See [README.md](README.md) for more detail.
 
 ## Git
 
-Work directly on `main`. Do not create branches.
+- Work directly on `main`. Do not create branches.
+- Do not add `Co-Authored-By` (or any other AI attribution) lines to commit messages or pull request descriptions.
 
 ## Build / Render
 
