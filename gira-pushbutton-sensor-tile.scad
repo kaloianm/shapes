@@ -41,7 +41,7 @@ lip_height = 0.5; // mm
 // Two legs and a top bar. Only the two outer top corners are rounded. The clip is flush with the
 // outer end face and grows inward only; the lip under it and the end of the tray cavity are filled
 // to the same thickness so the clip is fully supported down to the floor.
-clip_thickness = 2; // mm (the original tile is 1 mm; 2 mm make the legs stronger when printed using PLA)
+clip_thickness = 1.5; // mm (the original tile is 1 mm; 1.5 mm makes the legs stronger when printed using PLA and still fits the slot)
 clip_width = 15; // mm
 clip_height = 5; // mm
 clip_bar_height = 2; // mm
@@ -49,9 +49,10 @@ clip_gap = 8; // mm, between the legs
 clip_corner_radius = 0.5; // mm
 
 // Small pins:
-// Rising from the tray floor to the rim, centered across the width and inset from each end.
-pin_inset = 6; // mm
+// Rising from the tray floor to slightly above the rim, centered across the width and inset from each end.
+pin_inset = 7; // mm
 pin_radius = 0.5; // mm
+pin_protrusion = 0.2; // mm, above the rim
 
 // Configuration Block
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -136,7 +137,7 @@ module end_clip(x_side) {
 
 module pin(x_side) {
   translate([x_side * (length / 2 - pin_inset), 0, floor_thickness])
-    cylinder(h = cavity_depth, r = pin_radius);
+    cylinder(h = cavity_depth + pin_protrusion, r = pin_radius);
 }
 
 tray();
