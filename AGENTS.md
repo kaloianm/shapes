@@ -1,6 +1,6 @@
-# Shapes — OpenSCAD 3D Printing Models
+# Agent Instructions
 
-This repository contains parametric OpenSCAD shapes for 3D printing.
+OpenSCAD shapes for 3D printing. See [README.md](README.md) for more detail.
 
 ## Project Structure
 
