@@ -7,6 +7,10 @@ OpenSCAD shapes for 3D printing. See [README.md](README.md) for more detail.
 - `*.scad` — OpenSCAD model files
 - `images/` — Preview images for the README table of contents
 
+## Git
+
+Work directly on `main`. Do not create branches.
+
 ## Build / Render
 
 No lint or typecheck steps. Models are rendered in OpenSCAD.
