@@ -13,7 +13,7 @@ No lint or typecheck steps. Models are rendered in OpenSCAD.
 
 ## Generating README Preview Images
 
-When adding or updating a model, regenerate its preview image for the README table of contents.
+When adding or updating a model at some point its preview image for the README table of contents needs to be regenerated, but this doesn't need to happen before commit. In other words don't regenerate images during iterations unless it is for demonstrative purposes.
 
 **Step 1 — Render the PNG from OpenSCAD:**
 

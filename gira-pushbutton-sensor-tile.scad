@@ -31,12 +31,15 @@ face_chamfer = 0.5; // mm
 // Raised lip across each short end, on top of the rim, that the clip stands on.
 lip_height = 0.5; // mm
 
-// Retaining arch clip on each short end: two legs and a top bar, as thick as the end wall.
-// Only the two outer top corners are rounded.
+// Retaining arch clip on each short end: two legs and a top bar. Only the two outer top corners are
+// rounded. The clip is flush with the outer end face and grows inward when made thicker than the
+// wall; the lip under it and the end of the tray cavity are filled to the same thickness so the clip
+// is fully supported down to the floor.
+clip_thickness = 2; // mm (the original was 1 mm, as thick as the wall, and the legs snapped off)
 clip_width = 15; // mm
 clip_height = 5; // mm
 clip_bar_height = 2; // mm
-clip_gap = 10; // mm, between the legs
+clip_gap = 8; // mm, between the legs
 clip_corner_radius = 0.5; // mm
 
 // Small pins rising from the tray floor to the rim, centered across the width and inset from each end.
@@ -96,20 +99,23 @@ module clip_profile() {
   }
 }
 
-// Lip and clip on one short end (x_side = -1 or 1), extruded through the end wall. The intersection
-// trims the lip to the rounded corners of the footprint.
+// Lip and clip on one short end (x_side = -1 or 1), extruded clip_thickness inward from the outer end
+// face. The block starts at the tray floor so that it also fills the cavity under a clip that is
+// thicker than the wall. The intersection trims it to the rounded corners of the footprint.
 module end_clip(x_side) {
+  base_height = cavity_depth + lip_height;
+
   intersection() {
     linear_extrude(thickness + lip_height + clip_height)
       footprint();
 
-    translate([x_side * (length - wall_thickness) / 2, 0, thickness])
+    translate([x_side * (length - clip_thickness) / 2, 0, floor_thickness])
       rotate([90, 0, 90])
-        linear_extrude(wall_thickness, center = true) {
+        linear_extrude(clip_thickness, center = true) {
           translate([-width / 2, 0])
-            square([width, lip_height]);
+            square([width, base_height]);
 
-          translate([0, lip_height])
+          translate([0, base_height - eps])
             clip_profile();
         }
   }
