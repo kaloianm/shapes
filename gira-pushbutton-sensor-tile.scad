@@ -15,7 +15,7 @@ $fn = 50;
 eps = 0.01;
 
 // Outer envelope of the tile. The flat face at z = 0 is the visible side.
-length = 54.5; // mm
+length = 55.5; // mm
 width = 18.5; // mm
 thickness = 2; // mm
 
@@ -40,7 +40,7 @@ clip_gap = 10; // mm, between the legs
 clip_corner_radius = 0.5; // mm
 
 // Small pins rising from the tray floor to the rim, centered across the width and inset from each end.
-pin_inset = 5; // mm
+pin_inset = 6; // mm
 pin_radius = 0.5; // mm
 
 cavity_length = length - 2 * wall_thickness;
