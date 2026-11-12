@@ -26,8 +26,9 @@ thickness = 2; // mm
 // Cosmetics of the visible face:
 // Rounded plan-view corners and a 45-degree chamfer around the face edge for improved aesthetic.
 // Also hides the elephant's foot of the first layer. Set either to 0 for a plain (square) box.
+// The chamfer must be well above the first-layer squish (~0.2-0.3 mm) or it gets filled in.
 corner_radius = 1; // mm
-face_chamfer = 0.5; // mm
+face_chamfer = 1; // mm
 
 // Shell:
 // The tray cavity is whatever is left inside the perimeter wall above the floor.
@@ -47,6 +48,9 @@ clip_height = 5; // mm
 clip_bar_height = 2; // mm
 clip_gap = 8; // mm, between the legs
 clip_corner_radius = 0.5; // mm
+// 45-degree chamfers in the two top corners of the opening. They shorten the unsupported bridge under
+// the bar (clip_gap - 2 * this) so it sags less when printed. Set to 0 for a square opening.
+clip_gap_chamfer = 1; // mm
 
 // Small pins:
 // Rising from the tray floor to slightly above the rim, centered across the width and inset from each end.
@@ -104,9 +108,16 @@ module clip_profile_2d() {
           circle(clip_corner_radius);
     }
 
-    // Opening between the legs.
-    translate([-clip_gap / 2, -1])
-      square([clip_gap, clip_height - clip_bar_height + 1]);
+    // Opening between the legs, with its top corners chamfered.
+    opening_top = clip_height - clip_bar_height;
+    polygon([
+      [-clip_gap / 2, -1],
+      [clip_gap / 2, -1],
+      [clip_gap / 2, opening_top - clip_gap_chamfer],
+      [clip_gap / 2 - clip_gap_chamfer, opening_top],
+      [-clip_gap / 2 + clip_gap_chamfer, opening_top],
+      [-clip_gap / 2, opening_top - clip_gap_chamfer],
+    ]);
   }
 }
 
